@@ -105,46 +105,49 @@ def humanize_size(size):
         if hsize > 0.5:
             return '%.2f %s' % (hsize, suffix)
 
+def main():
+    # we start here by checking all files
+    for filename in sys.stdin:
+        filename = filename.strip()
 
-# we start here by checking all files
-for filename in sys.stdin:
-    filename = filename.strip()
+        check_file(filename)
+        totalfiles += 1
+        totalsize += os.path.getsize(filename)
 
-    check_file(filename)
-    totalfiles += 1
-    totalsize += os.path.getsize(filename)
+    # print the report
+    print( '%10s   %s' % ('size', 'filename') )
 
-# print the report
-print '%10s   %s' % ('size', 'filename')
+    for h, f in hashlist.iteritems():
+        if hashcount[h] < 2:
+            # present one time, skip
+            continue
+        
+        # reference file    
+        refsize = os.path.getsize(f[0])
+        refmd5 = get_file_hash(f[0])
+        print( '%10d   %s' % (refsize, f[0]))
+        
+        
+        for filename in f[1:]:
+            # and its copies
+            size = os.path.getsize(filename)
+            md5 = get_file_hash(filename)
 
-for h, f in hashlist.iteritems():
-    if hashcount[h] < 2:
-        # present one time, skip
-        continue
-    
-    # reference file    
-    refsize = os.path.getsize(f[0])
-    refmd5 = get_file_hash(f[0])
-    print '%10d   %s' % (refsize, f[0])
-    
-    
-    for filename in f[1:]:
-        # and its copies
-        size = os.path.getsize(filename)
-        md5 = get_file_hash(filename)
+            status = ' '
+            msg = ''
+            if md5 != refmd5:
+                status = '!'
+                msg = ' partial match only!'
 
-        status = ' '
-        msg = ''
-        if md5 != refmd5:
-            status = '!'
-            msg = ' partial match only!'
+            print( '%10d %s %s%s' % (size, status, filename, msg))
+            dupsize += size
+        dupfiles += 1
+        print()
 
-        print '%10d %s %s%s' % (size, status, filename, msg)
-        dupsize += size
-    dupfiles += 1
-    print
+    # final summary
+    print( '%d files checked (%s), %d duplicates (%s).' % (
+        totalfiles, humanize_size(totalsize), dupfiles, humanize_size(dupsize)))
 
-# final summary
-print '%d files checked (%s), %d duplicates (%s).' % (
-    totalfiles, humanize_size(totalsize), dupfiles, humanize_size(dupsize))
 
+if __name__ == '__main__':
+    main()
