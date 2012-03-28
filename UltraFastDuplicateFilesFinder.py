@@ -46,7 +46,7 @@ def get_file_hash(filename, limit_size=None, buffer_size=BUFFER_SIZE):
     """
     # open file
     try:
-        f = file(filename, "rb")
+        f = open(filename, "rb")
     except IOError:
         return 'NONE'
 
@@ -105,9 +105,10 @@ def humanize_size(size):
         if hsize > 0.5:
             return '%.2f %s' % (hsize, suffix)
 
-def main():
+def main(dirWalker=sys.stdin):
+    global totalsize, totalfiles, dupfiles, dupsize 
     # we start here by checking all files
-    for filename in sys.stdin:
+    for filename in dirWalker:
         filename = filename.strip()
 
         check_file(filename)
@@ -117,7 +118,7 @@ def main():
     # print the report
     print( '%10s   %s' % ('size', 'filename') )
 
-    for h, f in hashlist.iteritems():
+    for h, f in hashlist.items():
         if hashcount[h] < 2:
             # present one time, skip
             continue
@@ -147,7 +148,7 @@ def main():
     # final summary
     print( '%d files checked (%s), %d duplicates (%s).' % (
         totalfiles, humanize_size(totalsize), dupfiles, humanize_size(dupsize)))
-
+    return hashlist
 
 if __name__ == '__main__':
     main()
