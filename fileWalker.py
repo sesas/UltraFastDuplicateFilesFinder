@@ -42,8 +42,16 @@ def getDirName(dirName=None):
     return inp
 
 
-def delete_duplicates(hashlist):
-    
+def delete_duplicates(hashlist, interactive=True):
+    for fl in hashlist.values():
+        for filename in fl[1:]:
+            print('removing:', filename)
+            if interactive:
+                inp = input('?').strip()
+                if not inp in ['yes', 'y', 'ya']:
+                    continue
+            os.remove(filename)
+        pass
     pass
 
 def main(dirName=None):
@@ -51,9 +59,13 @@ def main(dirName=None):
     walker = os.walk(root)
     walker = walkerAdapter(walker)
     hashlist = ff.main(walker)
-    inp = input('would you like to remove all duplicates?\n')
-    if inp.strip() in ['yes', 'y', 'ya']:
+    inp = input('would you like to remove all duplicates?\n').strip()
+    if inp in ['int', 'yi']:
+        delete_duplicates(hashlist, True)
+    elif inp in ['yes', 'y', 'ya']:
         delete_duplicates(hashlist)
+    else:
+        print('no file was deleted')
 ##    for j in hashlist.items():
 ##        if len(j[1]) >1:
 ##            print(j)
