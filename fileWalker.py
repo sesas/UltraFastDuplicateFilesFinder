@@ -17,9 +17,10 @@ def folderIsHidden(filepath):
     par = filepath
     while 1:
         par, cd = os.path.split(par)
+##        print(par, ':', cd)
         if cd.startswith('.') and not cd == '.':
             return True
-        if not par:
+        if not par or os.path.ismount(par):
             break
 
 def getDirName(dirName=None):
@@ -32,12 +33,14 @@ def getDirName(dirName=None):
             return out
     
     while 1:
-        inp = input("which folder would you like to find the duplicates in?\n")
+        inp = print("which folder would you like to find the duplicates in?")
+##        inp = print("(make sure the path you insert has double \\ in between folders.")
+        inp = input()
         if not inp: # mainly for debugging
             global testPath
             inp = testPath
             break
-        if os.path.isdir( os.path.normpath( inp )):
+        if os.path.isdir( inp ):
             break
     return inp
 
