@@ -42,14 +42,17 @@ def getDirName(dirName=None):
     return inp
 
 
-def delete_duplicates(hashlist, interactive=True):
+def delete_duplicates(hashlist, interactive=True, verbose=True):
     for fl in hashlist.values():
+        if len(fl) > 1:
+            print('keeping:', fl[0])
         for filename in fl[1:]:
-            print('removing:', filename)
+            print('duplicate:', filename)
             if interactive:
                 inp = input('?').strip()
                 if not inp in ['yes', 'y', 'ya']:
                     continue
+            print('deleting:', filename)
             os.remove(filename)
         pass
     pass
