@@ -110,8 +110,8 @@ def main(dirWalker=sys.stdin):
     # we start here by checking all files
     for filename in dirWalker:
         filename = filename.strip()
-        if not totalfiles % 100:
-            print(filename)
+        if not totalfiles % 500:
+            print('files processed:', totalfiles, filename)
         check_file(filename)
         totalfiles += 1
         totalsize += os.path.getsize(filename)
