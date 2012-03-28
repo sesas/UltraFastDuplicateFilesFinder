@@ -78,7 +78,7 @@ def check_file(filename):
     Compare the given file to our lists of hashes
     """    
     # compute md5
-    h = get_file_hash(filename)
+    h = get_file_hash(filename, CHUNK_SIZE//2)
     
     # increase count
     i = hashcount.get(h, 0)
@@ -110,7 +110,8 @@ def main(dirWalker=sys.stdin):
     # we start here by checking all files
     for filename in dirWalker:
         filename = filename.strip()
-
+        if not totalfiles % 100:
+            print(filename)
         check_file(filename)
         totalfiles += 1
         totalsize += os.path.getsize(filename)
@@ -121,6 +122,7 @@ def main(dirWalker=sys.stdin):
     for h, f in hashlist.items():
         if hashcount[h] < 2:
             # present one time, skip
+            
             continue
         
         # reference file    
