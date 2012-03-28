@@ -1,8 +1,37 @@
-Ultra Fast Duplicate Files Finder
+=================================
+original Ultra Fast Duplicate Files Finder
 =================================
   by Gautier Portet <kassoulet gmail com>
+forked and extended:
+  by Gabriel Reyla <gabreyla@gmail.com> 
 
+The extended version works on Windows too:
+------------------------------------------------------------------------------
+$ python fileWalker.py
+which folder would you like to find the duplicates in?
+.
+.\fileWalker.py
+      size   filename
+      1306   .\README
+      1306   .\test\README
+      1306   .\test\README_2
+      1306   .\test\README_3
 
+7 files checked (15.24 KiB), 1 duplicates (3.83 KiB).
+would you like to remove all duplicates?
+yes
+keeping: .\README
+duplicate: .\test\README
+?y
+deleting: .\test\README
+duplicate: .\test\README_2
+?n
+duplicate: .\test\README_3
+?n
+>>> 
+------------------------------------------------------------------------------
+
+On Unix systems the program can be used as follow:
 Takes a list of file from stdin.
 And print the duplicate ones.
 
