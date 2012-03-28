@@ -46,7 +46,7 @@ def get_file_hash(filename, limit_size=None, buffer_size=BUFFER_SIZE):
     """
     # open file
     try:
-        f = file(filename, "rb")
+        f = open(filename, "rb")
     except IOError:
         return 'NONE'
 
@@ -78,7 +78,7 @@ def check_file(filename):
     Compare the given file to our lists of hashes
     """    
     # compute md5
-    h = get_file_hash(filename)
+    h = get_file_hash(filename, CHUNK_SIZE//2)
     
     # increase count
     i = hashcount.get(h, 0)
@@ -105,46 +105,52 @@ def humanize_size(size):
         if hsize > 0.5:
             return '%.2f %s' % (hsize, suffix)
 
+def main(dirWalker=sys.stdin):
+    global totalsize, totalfiles, dupfiles, dupsize 
+    # we start here by checking all files
+    for filename in dirWalker:
+        filename = filename.strip()
+        if not totalfiles % 100:
+            print(filename)
+        check_file(filename)
+        totalfiles += 1
+        totalsize += os.path.getsize(filename)
 
-# we start here by checking all files
-for filename in sys.stdin:
-    filename = filename.strip()
+    # print the report
+    print( '%10s   %s' % ('size', 'filename') )
 
-    check_file(filename)
-    totalfiles += 1
-    totalsize += os.path.getsize(filename)
+    for h, f in hashlist.items():
+        if hashcount[h] < 2:
+            # present one time, skip
+            
+            continue
+        
+        # reference file    
+        refsize = os.path.getsize(f[0])
+        refmd5 = get_file_hash(f[0])
+        print( '%10d   %s' % (refsize, f[0]))
+        
+        
+        for filename in f[1:]:
+            # and its copies
+            size = os.path.getsize(filename)
+            md5 = get_file_hash(filename)
 
-# print the report
-print '%10s   %s' % ('size', 'filename')
+            status = ' '
+            msg = ''
+            if md5 != refmd5:
+                status = '!'
+                msg = ' partial match only!'
 
-for h, f in hashlist.iteritems():
-    if hashcount[h] < 2:
-        # present one time, skip
-        continue
-    
-    # reference file    
-    refsize = os.path.getsize(f[0])
-    refmd5 = get_file_hash(f[0])
-    print '%10d   %s' % (refsize, f[0])
-    
-    
-    for filename in f[1:]:
-        # and its copies
-        size = os.path.getsize(filename)
-        md5 = get_file_hash(filename)
+            print( '%10d %s %s%s' % (size, status, filename, msg))
+            dupsize += size
+        dupfiles += 1
+        print()
 
-        status = ' '
-        msg = ''
-        if md5 != refmd5:
-            status = '!'
-            msg = ' partial match only!'
+    # final summary
+    print( '%d files checked (%s), %d duplicates (%s).' % (
+        totalfiles, humanize_size(totalsize), dupfiles, humanize_size(dupsize)))
+    return hashlist
 
-        print '%10d %s %s%s' % (size, status, filename, msg)
-        dupsize += size
-    dupfiles += 1
-    print
-
-# final summary
-print '%d files checked (%s), %d duplicates (%s).' % (
-    totalfiles, humanize_size(totalsize), dupfiles, humanize_size(dupsize))
-
+if __name__ == '__main__':
+    main()
